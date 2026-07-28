@@ -466,3 +466,378 @@ Keeps commit history linear and easier to read.
 -
 
 
+# Day 2
+
+# Module 3 – Functional Programming
+## Lesson 1–3 Notes
+
+---
+
+# Why Functional Programming?
+
+Java introduced Functional Programming in Java 8 to make code:
+
+- More concise
+- More readable
+- Easier to parallelize
+- Easier to maintain
+
+Traditional Java focuses on **how** to perform a task (imperative programming).
+
+Functional programming focuses on **what** needs to be done.
+
+Example:
+
+Imperative
+
+```java
+int sum = 0;
+for (int n : numbers) {
+    sum += n;
+}
+```
+
+Functional
+
+```java
+int sum = numbers.stream()
+                 .mapToInt(Integer::intValue)
+                 .sum();
+```
+
+The Stream API still uses loops internally, but hides the implementation from developers.
+
+---
+
+# Functional Programming Principles
+
+## 1. Pure Functions
+
+A pure function:
+
+- Always produces the same output for the same input.
+- Does not modify external state.
+- Has no side effects.
+
+Example:
+
+```java
+int add(int a, int b) {
+    return a + b;
+}
+```
+
+---
+
+## 2. Immutability
+
+Functional programming prefers immutable objects.
+
+Instead of modifying an object, create a new one.
+
+Benefits:
+
+- Thread safety
+- Predictable behavior
+- Easier debugging
+
+---
+
+## 3. Side Effects
+
+Examples of side effects:
+
+- Printing
+- Writing to a database
+- Sending emails
+- Modifying global variables
+- Updating files
+
+Functional code attempts to minimize side effects.
+
+---
+
+# Functional Interfaces
+
+A Functional Interface contains exactly **one abstract method**.
+
+Reason:
+
+The compiler must know exactly which method a lambda expression implements.
+
+Example:
+
+```java
+@FunctionalInterface
+public interface Calculator {
+    int calculate(int a, int b);
+}
+```
+
+---
+
+# Lambda Expressions
+
+Instead of writing:
+
+```java
+Calculator calculator = new Calculator() {
+    @Override
+    public int calculate(int a, int b) {
+        return a + b;
+    }
+};
+```
+
+We can write:
+
+```java
+Calculator calculator = (a, b) -> a + b;
+```
+
+A lambda is a concise way to provide an implementation of a Functional Interface.
+
+---
+
+# JVM Internals
+
+Anonymous Classes:
+
+- Compiler generates additional class files.
+
+Lambdas:
+
+- Do NOT generate anonymous classes.
+- Compiler generates an `invokedynamic` instruction.
+- JVM creates the implementation at runtime using `LambdaMetafactory`.
+
+Interview takeaway:
+
+> Lambdas are implemented using the JVM's `invokedynamic` mechanism rather than anonymous inner classes.
+
+---
+
+# Built-in Functional Interfaces
+
+## Predicate<T>
+
+Purpose:
+
+Returns a boolean.
+
+```java
+Predicate<Employee> highSalary =
+        employee -> employee.salary() > 100000;
+```
+
+Common Stream operation:
+
+```java
+filter()
+```
+
+---
+
+## Function<T, R>
+
+Purpose:
+
+Transforms one object into another.
+
+```java
+Function<Employee, String> employeeName =
+        Employee::name;
+```
+
+Common Stream operation:
+
+```java
+map()
+```
+
+---
+
+## Consumer<T>
+
+Purpose:
+
+Consumes a value and returns nothing.
+
+```java
+Consumer<Employee> printer =
+        System.out::println;
+```
+
+Common Stream operation:
+
+```java
+forEach()
+```
+
+---
+
+## Supplier<T>
+
+Purpose:
+
+Produces an object without taking any input.
+
+```java
+Supplier<UUID> uuid =
+        UUID::randomUUID;
+```
+
+---
+
+## UnaryOperator<T>
+
+Purpose:
+
+Input and output are the same type.
+
+```java
+UnaryOperator<String> upper =
+        String::toUpperCase;
+```
+
+---
+
+## BinaryOperator<T>
+
+Purpose:
+
+Accepts two values of the same type and returns one value.
+
+```java
+BinaryOperator<Integer> add =
+        Integer::sum;
+```
+
+Common Stream operation:
+
+```java
+reduce()
+```
+
+---
+
+# Functional Interface Summary
+
+| Requirement | Interface |
+|-------------|-----------|
+| Return true/false | Predicate |
+| Transform object | Function |
+| Perform action | Consumer |
+| Produce object | Supplier |
+| Same type in/out | UnaryOperator |
+| Combine two values | BinaryOperator |
+
+---
+
+# Deferred Execution
+
+A lambda expression defines behavior but does not execute immediately.
+
+Example:
+
+```java
+Predicate<Employee> highSalary =
+        employee -> employee.salary() > 100000;
+```
+
+Nothing happens until:
+
+```java
+highSalary.test(employee);
+```
+
+---
+
+# Stream Laziness
+
+Streams are **lazy**.
+
+Intermediate operations only build the pipeline.
+
+Example:
+
+```java
+employees.stream()
+         .filter(...)
+         .map(...);
+```
+
+Nothing executes yet.
+
+Execution starts only after a terminal operation.
+
+Example:
+
+```java
+employees.stream()
+         .filter(...)
+         .map(...)
+         .toList();
+```
+
+`toList()` triggers execution.
+
+---
+
+# Intermediate Operations
+
+- filter()
+- map()
+- flatMap()
+- sorted()
+- distinct()
+- peek()
+- limit()
+- skip()
+
+These return another Stream.
+
+---
+
+# Terminal Operations
+
+- toList()
+- collect()
+- forEach()
+- count()
+- reduce()
+- findFirst()
+- anyMatch()
+- allMatch()
+- min()
+- max()
+
+These execute the pipeline.
+
+---
+
+# Interview Questions
+
+### Why must a Functional Interface contain exactly one abstract method?
+
+Because the compiler must know exactly which method a lambda expression implements.
+
+---
+
+### Why are Streams lazy?
+
+Streams delay execution until a terminal operation is called. This enables pipeline optimization, avoids unnecessary work, reduces intermediate object creation, and improves performance.
+
+---
+
+# Key Takeaways
+
+- Functional programming focuses on **what** rather than **how**.
+- Streams abstract iteration; loops still exist internally.
+- Lambda expressions implement Functional Interfaces.
+- Functional Interfaces have exactly one abstract method.
+- Lambdas use `invokedynamic`, not anonymous inner classes.
+- Know the six built-in Functional Interfaces.
+- Streams are lazy.
+- Intermediate operations build a pipeline.
+- Terminal operations trigger execution.
